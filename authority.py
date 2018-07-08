@@ -287,6 +287,14 @@ class Highlighter:
         """
         Load the model's variables and weights from a JSON file.
         """
+        # load the model from file
+        self.model = load_model(filepath_model,
+                                custom_objects={"AttentionWeightedAverage":AttentionWeightedAverage,
+                                                "top_3_acc":top_3_acc})
+        # compile the model
+        self.model.compile(loss='categorical_crossentropy',
+                           optimizer='adamax',
+                           metrics=['acc', top_3_acc])
         # load the variables from file
         with open(filepath_vars, 'r') as json_file:
             vars = json.load(json_file)
@@ -302,11 +310,3 @@ class Highlighter:
         self.encoded_texts = np.array(vars['encoded_texts'])
         self.labels = np.array(vars['labels'])
         self.vocab = vars['vocab']
-        # load the model from file
-        self.model = load_model(filepath_model,
-                                custom_objects={"AttentionWeightedAverage":AttentionWeightedAverage,
-                                                "top_3_acc":top_3_acc})
-        # compile the model
-        self.model.compile(loss='categorical_crossentropy',
-                           optimizer='adamax',
-                           metrics=['acc', top_3_acc])

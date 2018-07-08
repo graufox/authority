@@ -287,26 +287,36 @@ class Highlighter:
         """
         Load the model's variables and weights from a JSON file.
         """
-        # load the model from file
-        self.model = load_model(filepath_model,
-                                custom_objects={"AttentionWeightedAverage":AttentionWeightedAverage,
-                                                "top_3_acc":top_3_acc})
-        # compile the model
-        self.model.compile(loss='categorical_crossentropy',
-                           optimizer='adamax',
-                           metrics=['acc', top_3_acc])
-        # load the variables from file
-        with open(filepath_vars, 'r') as json_file:
-            vars = json.load(json_file)
-        self.authors = vars['authors']
-        self.authors_dict = vars['authors_dict']
-        self.num_authors = vars['num_authors']
-        self.paths = vars['paths']
-        self.texts = vars['texts']
-        self.texts_dict = vars['texts_dict']
-        self.maxlen = vars['maxlen']
-        self.num_samples_per_author = vars['num_samples_per_author']
-        self.sample_stride = vars['sample_stride']
-        self.encoded_texts = np.array(vars['encoded_texts'])
-        self.labels = np.array(vars['labels'])
-        self.vocab = vars['vocab']
+        try:
+            # load the model from file
+            self.model = load_model(filepath_model,
+                                    custom_objects={"AttentionWeightedAverage":AttentionWeightedAverage,
+                                                    "top_3_acc":top_3_acc})
+            # compile the model
+            self.model.compile(loss='categorical_crossentropy',
+                               optimizer='adamax',
+                               metrics=['acc', top_3_acc])
+        except:
+            print('Error loading model file from specified path.')
+            return -1
+        try:
+            # load the variables from file
+            with open(filepath_vars, 'r') as json_file:
+                vars = json.load(json_file)
+            self.authors = vars['authors']
+            self.authors_dict = vars['authors_dict']
+            self.num_authors = vars['num_authors']
+            self.paths = vars['paths']
+            self.texts = vars['texts']
+            self.texts_dict = vars['texts_dict']
+            self.maxlen = vars['maxlen']
+            self.num_samples_per_author = vars['num_samples_per_author']
+            self.sample_stride = vars['sample_stride']
+            self.encoded_texts = np.array(vars['encoded_texts'])
+            self.labels = np.array(vars['labels'])
+            self.vocab = vars['vocab']
+        except:
+            print('Error loading model variables. Loading default vocab.')
+            self.vocab = textgenrnn().vocab
+            self.num_authors = K.int(self.model.output)[-1]
+            self.authors = [str(i) for i in range(self.num_authors)]

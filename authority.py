@@ -25,6 +25,7 @@ import json
 class Highlighter:
 
     def __init__(self, maxlen=40, sample_stride=3):
+        # DEBUG: changing maxlen and sample_stride will break model
         self.authors = []
         self.authors_dict = {}
         self.num_authors = 0

@@ -44,7 +44,7 @@ class Highlighter:
 
 
 
-    def build_model(self, textgenrnn_weights_path=None, num_authors=None):
+    def build_model(self, textgenrnn_weights_path=0, num_authors=None):
         # DEBUG: make this changeable by user
         """define and compile the core highlighter model"""
 
@@ -53,7 +53,7 @@ class Highlighter:
             return
 
         # define model
-        if textgenrnn_weights_path is not None:
+        if textgenrnn_weights_path is 0:
             self._tg_rnn = textgenrnn(textgenrnn_weights_path)
             self.vocab = self._tg_rnn.vocab
 
@@ -84,7 +84,7 @@ class Highlighter:
 
 
 
-    def load_author_text(self, path, num_samples_per_author=None, verbose=True, rand_seed=0):
+    def load_author_texts(self, path, num_samples_per_author=None, verbose=True, rand_seed=0):
         # DEBUG: requires build_model to be run first
         """
         Trains on a corpus of several authors, located in path (name of folder with data).
@@ -288,8 +288,7 @@ class Highlighter:
 
 
     def load_model(self,
-                   filepath_vars='model_data/classifier_vars.json',
-                   filepath_model='model_data/classifier_model.h5'):
+                   filepath_model, filepath_vars=0):
         """
         Load the model's variables and weights from a JSON file.
         """
@@ -305,26 +304,27 @@ class Highlighter:
         except:
             print('Error loading model file from specified path.')
             return -1
-        try:
-            # load the variables from file
-            with open(filepath_vars, 'r', encoding='latin') as json_file:
-                vars = json.load(json_file)
-            self.authors = vars['authors']
-            self.authors_dict = vars['authors_dict']
-            self.num_authors = vars['num_authors']
-            self.paths = vars['paths']
-            self.texts = vars['texts']
-            self.texts_dict = vars['texts_dict']
-            self.maxlen = vars['maxlen']
-            self.num_samples_per_author = vars['num_samples_per_author']
-            self.sample_stride = vars['sample_stride']
-            self.encoded_texts = np.array(vars['encoded_texts'])
-            self.labels = np.array(vars['labels'])
-            self.vocab = vars['vocab']
-        except FileNotFoundError:
-            print('Couldn\'t find model variables. Loading default vocab.')
-            self.vocab = textgenrnn().vocab
-            if self.num_authors == 0:
-                self.num_authors = K.int_shape(self.model.output)[-1]
-            if len(self.authors) == 0:
-                self.authors = [str(i) for i in range(self.num_authors)]
+        if type(filepath_vars) is str:
+            try:
+                # load the variables from file
+                with open(filepath_vars, 'r', encoding='latin') as json_file:
+                    vars = json.load(json_file)
+                self.authors = vars['authors']
+                self.authors_dict = vars['authors_dict']
+                self.num_authors = vars['num_authors']
+                self.paths = vars['paths']
+                self.texts = vars['texts']
+                self.texts_dict = vars['texts_dict']
+                self.maxlen = vars['maxlen']
+                self.num_samples_per_author = vars['num_samples_per_author']
+                self.sample_stride = vars['sample_stride']
+                self.encoded_texts = np.array(vars['encoded_texts'])
+                self.labels = np.array(vars['labels'])
+                self.vocab = vars['vocab']
+            except FileNotFoundError:
+                print('Couldn\'t find model variables. Loading default vocab.')
+                self.vocab = textgenrnn().vocab
+                if self.num_authors == 0:
+                    self.num_authors = K.int_shape(self.model.output)[-1]
+                if len(self.authors) == 0:
+                    self.authors = [str(i) for i in range(self.num_authors)]

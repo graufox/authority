@@ -301,7 +301,7 @@ class Highlighter:
             return -1
         try:
             # load the variables from file
-            with open(filepath_vars, 'r') as json_file:
+            with open(filepath_vars, 'r', encoding='latin') as json_file:
                 vars = json.load(json_file)
             self.authors = vars['authors']
             self.authors_dict = vars['authors_dict']

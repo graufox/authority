@@ -265,8 +265,8 @@ class Highlighter:
         vars['authors_dict'] = self.authors_dict
         vars['num_authors'] = self.num_authors
         vars['paths'] = self.paths
-        vars['texts'] = self.texts
-        vars['texts_dict'] = self.texts_dict
+        # vars['texts'] = self.texts
+        # vars['texts_dict'] = self.texts_dict
         vars['maxlen'] = self.maxlen
         vars['num_samples_per_author'] = self.num_samples_per_author
         vars['sample_stride'] = self.sample_stride

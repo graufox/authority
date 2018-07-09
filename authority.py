@@ -32,6 +32,7 @@ class Highlighter:
         self.paths = {} # will store paths to text files, keys will be the authors
         self.texts = [] # DEBUG: necessary?
         self.texts_dict = {}
+        self.vocab = textgenrnn().vocab
         # length of text snippets analyzed
         self.maxlen = maxlen # recommend to leave at default to utilize transfer learning
 
@@ -43,7 +44,7 @@ class Highlighter:
 
 
 
-    def build_model(self, num_authors=None):
+    def build_model(self, textgenrnn_weights_path=None, num_authors=None):
         # DEBUG: make this changeable by user
         """define and compile the core highlighter model"""
 
@@ -52,9 +53,13 @@ class Highlighter:
             return
 
         # define model
-        self._tg_rnn = textgenrnn()
+        if textgenrnn_weights_path is not None:
+            self._tg_rnn = textgenrnn(textgenrnn_weights_path)
+            self.vocab = self._tg_rnn.vocab
+
+        else:
+            self._tg_rnn = textgenrnn()
         self._tg_model = self._tg_rnn.model
-        self.vocab = self._tg_rnn.vocab
         self._input = self._tg_model.layers[0].input
         self._tg_out = self._tg_model.layers[-2].output
         self._tg_drop = Dropout(rate=0.5)(self._tg_out)
@@ -316,8 +321,10 @@ class Highlighter:
             self.encoded_texts = np.array(vars['encoded_texts'])
             self.labels = np.array(vars['labels'])
             self.vocab = vars['vocab']
-        except:
-            print('Error loading model variables. Loading default vocab.')
+        except FileNotFoundError:
+            print('Couldn\'t find model variables. Loading default vocab.')
             self.vocab = textgenrnn().vocab
-            self.num_authors = K.int(self.model.output)[-1]
-            self.authors = [str(i) for i in range(self.num_authors)]
+            if self.num_authors == 0:
+                self.num_authors = K.int_shape(self.model.output)[-1]
+            if len(self.authors) == 0:
+                self.authors = [str(i) for i in range(self.num_authors)]

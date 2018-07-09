@@ -84,7 +84,7 @@ class Highlighter:
 
 
 
-    def load_training_data(self, path, num_samples_per_author=None, verbose=True, rand_seed=0):
+    def load_author_text(self, path, num_samples_per_author=None, verbose=True, rand_seed=0):
         # DEBUG: requires build_model to be run first
         """
         Trains on a corpus of several authors, located in path (name of folder with data).

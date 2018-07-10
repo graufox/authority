@@ -4,31 +4,24 @@
 This Python library is used to train a classifier that learns to recognize different authors' writings. The model is built with [minimaxir](https://github.com/minimaxir)'s [textgenrnn](https://github.com/minimaxir/textgenrnn) and the [Keras](https://keras.io) deep learning library. 
 
 ## Usage
- 1. Clone repository.
+ 1. Clone repository and use [Pipenv](https://docs.pipenv.org/) to install dependencies. 
 
- 2. Use [Pipenv](https://docs.pipenv.org/) to install dependencies. 
- 3. Import authority's Highlighter class:
+ 2. Import authority's Highlighter class.
 
         from authority import Highlighter
-
- 4. Create an instance of the Highlighter class.
-
         hi = Highlighter()
 
- 5. Load the sample authors found in [Myles O'Neill](https://www.kaggle.com/mylesoneill)'s [Classic Literature in ASCII](https://www.kaggle.com/mylesoneill/classic-literature-in-ascii) (or any other "authors"/text types) by pointing to the folder in which it is located.
+ 3. Load the sample authors found in [Myles O'Neill](https://www.kaggle.com/mylesoneill)'s [Classic Literature in ASCII](https://www.kaggle.com/mylesoneill/classic-literature-in-ascii) (or any other "authors"/text types) by pointing to the folder in which it is located.
 
         hi.load_author_texts('AUTHORS/')
 
- 6. Load any pretrained model, if available. This package includes weights that have been pretrained on the authors in Classic Literature in ASCII. 
+ 4. Load any pretrained model and/or train and save. This package includes weights that have been pretrained on the authors in Classic Literature in ASCII. 
 
         hi.load_model('model_data/classifier_model.h5')
-
- 7. Train, if desired, then save.
-
         hi.train(epochs=10, validation_split=0.15)
         hi.save_model('model_data/classifier_model_v2.h5')
 
- 8. Predict the author of a given text (make sure it's at least 40 characters):
+ 5. Predict the author of a given text (make sure it's at least 40 characters):
 
         text = 'Hey look at me I\'m some words here, make sure it\'s long enough'
         hi.classify(text)

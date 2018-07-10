@@ -57,10 +57,9 @@ class Highlighter:
             return
 
         # define model
-        if textgenrnn_weights_path is 0:
+        if type(textgenrnn_weights_path) is str:
             self._tg_rnn = textgenrnn(textgenrnn_weights_path)
             self.vocab = self._tg_rnn.vocab
-
         else:
             self._tg_rnn = textgenrnn()
         self._tg_model = self._tg_rnn.model
@@ -69,10 +68,10 @@ class Highlighter:
         if dropout_rate > 0 and dropout_rate < 1:
             self._tg_out = Dropout(rate=0.5)(self._tg_out)
         if batch_normalization is True:
-            self._tg_out = BatchNormalization()(seslf.tg_out)
+            self._tg_out = BatchNormalization()(self._tg_out)
         self._classification = Dense(units=self.num_authors,
                                      activation='softmax',
-                                     name='classification')(self._tg_drop)
+                                     name='classification')(self._tg_out)
         self.model = Model(inputs=self._input, outputs=self._classification)
 
         # compile model
@@ -148,9 +147,7 @@ class Highlighter:
             print()
 
         # now that we have the authors loaded we can build the model
-        try:
-            self.model
-        except:
+        if not hasattr(self, 'model'):
             self.build_model(self.num_authors)
 
         # we want to have the same amount of samples for each author

@@ -259,30 +259,37 @@ class Highlighter:
 
 
 
-    def save_model(self,
-                   filepath_vars='model_data/classifier_vars.json',
-                   filepath_model='model_data/classifier_model.h5'):
+    def save_model(self, filepath_model, filepath_vars=0):
         """
         Saves the model's variables in a JSON and the model architecture/weights in a .hdf5 file.
         """
-        vars = {}
-        vars['authors'] = self.authors
-        vars['authors_dict'] = self.authors_dict
-        vars['num_authors'] = self.num_authors
-        vars['paths'] = self.paths
-        # vars['texts'] = self.texts
-        # vars['texts_dict'] = self.texts_dict
-        vars['maxlen'] = self.maxlen
-        vars['num_samples_per_author'] = self.num_samples_per_author
-        vars['sample_stride'] = self.sample_stride
-        vars['encoded_texts'] = self.encoded_texts.tolist()
-        vars['labels'] = self.labels.tolist()
-        vars['vocab'] = self.vocab
-        # write variables to file
-        with open(filepath_vars, 'w') as outfile:
-            json.dump(vars, outfile)
-        # write model weights and architecture to file
-        self.model.save(filepath_model)
+        try:
+            # write model weights and architecture to file
+            self.model.save(filepath_model)
+        except:
+            print('Error saving model file. Check saving path.')
+
+        if type(filepath_vars) is str:
+            vars = {}
+            vars['authors'] = self.authors
+            vars['authors_dict'] = self.authors_dict
+            vars['num_authors'] = self.num_authors
+            vars['paths'] = self.paths
+            # vars['texts'] = self.texts
+            # vars['texts_dict'] = self.texts_dict
+            vars['maxlen'] = self.maxlen
+            vars['num_samples_per_author'] = self.num_samples_per_author
+            vars['sample_stride'] = self.sample_stride
+            vars['encoded_texts'] = self.encoded_texts.tolist()
+            vars['labels'] = self.labels.tolist()
+            vars['vocab'] = self.vocab
+
+            try:
+                # write variables to file
+                with open(filepath_vars, 'w') as outfile:
+                    json.dump(vars, outfile)
+            except:
+                print('Error saving var file. Check saving path.')
 
 
 

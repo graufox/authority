@@ -80,4 +80,4 @@ This Python library is used to train a classifier that learns to recognize diffe
 
         hi.plot_highlights(longer_text)
   
-    ![img](https://github.com/graufox/authority/plot_highlights_demo_image.png)
+    ![img](https://github.com/graufox/authority/blob/master/plot_highlights_demo_image.png)

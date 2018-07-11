@@ -1,5 +1,5 @@
 # authority
-##### Train a text classifier to recognize authors in just a few lines of Python. 
+##### Train a text classifier to recognize authors (or other categories of text) in just a few lines of Python. 
 
 This Python library is used to train a classifier that learns to recognize different authors' writings. The model is built with [minimaxir](https://github.com/minimaxir)'s [textgenrnn](https://github.com/minimaxir/textgenrnn) and the [Keras](https://keras.io) deep learning library. 
 
@@ -37,4 +37,6 @@ This Python library is used to train a classifier that learns to recognize diffe
 
     You can also plot out the intensity of each author over time: 
 
-        hi.plot_highlights(text)
+        hi.plot_highlights(longer_text)
+  
+    ![img](https://github.com/graufox/authority/blob/master/plot_highlights_demo_image.png)

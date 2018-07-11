@@ -65,10 +65,10 @@ class Highlighter:
         self._tg_model = self._tg_rnn.model
         self._input = self._tg_model.layers[0].input
         self._tg_out = self._tg_model.layers[-2].output
-        if dropout_rate > 0 and dropout_rate < 1:
-            self._tg_out = Dropout(rate=0.5)(self._tg_out)
         if batch_normalization is True:
             self._tg_out = BatchNormalization()(self._tg_out)
+        if dropout_rate > 0 and dropout_rate < 1:
+            self._tg_out = Dropout(rate=0.5)(self._tg_out)
         self._classification = Dense(units=self.num_authors,
                                      activation='softmax',
                                      name='classification')(self._tg_out)

@@ -215,24 +215,34 @@ class Highlighter:
 
 
 
-    def highlight(self, text, padding=False):
+    def highlight(self, text, padding='repeat'):
         """
         Scans given text to find the most likely author at each point in text.
         padding=True ensures that the output is the same length as the original text.
         """
-        try:
-            self.model
+        if hasattr(self, 'model'):
             snippets = []
             for i in range(len(text)-self.maxlen+1):
                 converted_snippet = self.conv_text(text[i:i+self.maxlen])
                 snippets.append(converted_snippet)
             snippets = np.array(snippets)
-            if padding==True:
-                snippets = np.concatenate([[snippets[0]]*int(np.floor(self.maxlen/2)), snippets])
-                snippets = np.concatenate([snippets, [snippets[-1]]*int(np.ceil(self.maxlen/2))])
-            return self.model.predict(snippets)
-        except:
-            print('Error: make sure model is loaded and that text length is longer than maxlen.')
+            preds = self.model.predict(snippets)
+            if padding:
+                # if padding == 'zeros':
+                #     pad_l, pad_r = [0], [0]
+                if padding == 'repeat':
+                    pad_l, pad_r = preds[0], preds[-1]
+                    print(pad_l, pad_r)
+                else:
+                    print('Error: unrecognized padding.')
+                    return -1
+                block_l = np.vstack([pad_l for _ in range(int(np.floor(self.maxlen/2)))])
+                block_r = np.vstack([pad_r for _ in range(int(np.ceil(self.maxlen/2)))])
+                preds = np.vstack([block_l, preds])
+                preds = np.vstack([preds, block_r])
+            return preds
+        else:
+            print('Error: make sure model is loaded and compiled.')
             return -1
 
 
@@ -247,12 +257,12 @@ class Highlighter:
 
 
 
-    def plot_highlights(self, text, authors=None):
+    def plot_highlights(self, text, authors=None, padding='repeat'):
         """
         Renders a plot of the highlighting intensity for each author as the
         text progresses character by character.
         """
-        highlighting = self.highlight(text, padding=True)
+        highlighting = self.highlight(text, padding=padding)
         if authors is None:
             authors = self.authors
         for i in range(len(self.authors)):

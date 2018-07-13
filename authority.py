@@ -25,7 +25,8 @@ import json
 class Highlighter:
     """
     Main class used in authority. This class takes care of the loading of textual data,
-    saving and loading of models, classification of
+        saving and loading of models, classification of authors, and rendering visualizations
+        of said predictions.
     """
     def __init__(self, maxlen=40, sample_stride=3):
         # DEBUG: changing maxlen and sample_stride will break model
@@ -281,7 +282,7 @@ class Highlighter:
             ax.legend()
         ax.set_xlabel('character index')
         ax.set_ylabel('probability')
-
+        title = 'Highlighting for Text:\n'
         if len(text) > 60:
             subtitle = text[:60] + ' ...'
         ax.set_title(title + subtitle)
@@ -300,13 +301,14 @@ class Highlighter:
         if authors is None:
             authors = self.authors
         # set up plot in pyplot
-        fig, ax = plt.subplots(1)
-        for i in range(len(self.authors)):
-            ax.plot(highlighting[:,i], label=self.authors[i]);
-            ax.legend()
+        fig, ax = plt.subplots()
+        idx = np.arange(self.num_authors);
+        ax.bar(idx, probs);
+        ax.set_xticks(idx)
+        ax.set_xticklabels(self.authors)
         ax.set_xlabel('author')
         ax.set_ylabel('probability')
-        title = 'Probabilities For Authorship Associated to Text:\n'
+        title = 'Authorship Probabilities Associated to Text:\n'
         if len(text) > 60:
             subtitle = text[:60] + ' ...'
         ax.set_title(title + subtitle)

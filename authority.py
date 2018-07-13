@@ -256,7 +256,7 @@ class Highlighter:
         highlighting = self.highlight(text)
         return highlighting.mean(axis=0)
 
-        
+
 
     def classify_author(self, text):
         """Tries to predict the author of the given text."""
@@ -281,10 +281,35 @@ class Highlighter:
             ax.legend()
         ax.set_xlabel('character index')
         ax.set_ylabel('probability')
-        title = 'Highlighting for Text:\n'
+
         if len(text) > 60:
-            text = text[:60] + ' ...'
-        ax.set_title(title)
+            subtitle = text[:60] + ' ...'
+        ax.set_title(title + subtitle)
+        plt.show()
+
+
+
+    def plot_histogram(self, text, authors=None):
+        """
+        Renders a histogram of the associated probability for each author having
+            written the text.
+        """
+        # make predictions
+        probs = self.predict(text)
+        # select the authors we want to include in the plot
+        if authors is None:
+            authors = self.authors
+        # set up plot in pyplot
+        fig, ax = plt.subplots(1)
+        for i in range(len(self.authors)):
+            ax.plot(highlighting[:,i], label=self.authors[i]);
+            ax.legend()
+        ax.set_xlabel('author')
+        ax.set_ylabel('probability')
+        title = 'Probabilities For Authorship Associated to Text:\n'
+        if len(text) > 60:
+            subtitle = text[:60] + ' ...'
+        ax.set_title(title + subtitle)
         plt.show()
 
 

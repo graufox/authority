@@ -23,7 +23,10 @@ import json
 #
 
 class Highlighter:
-
+    """
+    Main class used in authority. This class takes care of the loading of textual data,
+    saving and loading of models, classification of
+    """
     def __init__(self, maxlen=40, sample_stride=3):
         # DEBUG: changing maxlen and sample_stride will break model
         self.authors = []
@@ -215,7 +218,7 @@ class Highlighter:
 
 
 
-    def highlight(self, text, padding='repeat'):
+    def highlight(self, text, padding='expand'):
         """
         Scans given text to find the most likely author at each point in text.
         padding=True ensures that the output is the same length as the original text.
@@ -232,7 +235,8 @@ class Highlighter:
                 #     pad_l, pad_r = [0], [0]
                 if padding == 'repeat':
                     pad_l, pad_r = preds[0], preds[-1]
-                    print(pad_l, pad_r)
+                elif padding == 'expand':
+                    return expand_filtering(preds, self.maxlen)
                 else:
                     print('Error: unrecognized padding.')
                     return -1
@@ -247,8 +251,14 @@ class Highlighter:
 
 
 
+    def predict(self, text):
+        """Returns the (average) probability of each author having written the text"""
+        highlighting = self.highlight(text)
+        return highlighting.mean(axis=0)
 
-    def classify(self, text):
+        
+
+    def classify_author(self, text):
         """Tries to predict the author of the given text."""
         highlighting = self.highlight(text)
         avgs = np.mean(highlighting, axis=0)
@@ -257,7 +267,7 @@ class Highlighter:
 
 
 
-    def plot_highlights(self, text, authors=None, padding='repeat'):
+    def plot_highlights(self, text, authors=None, padding='expand'):
         """
         Renders a plot of the highlighting intensity for each author as the
         text progresses character by character.
@@ -265,9 +275,16 @@ class Highlighter:
         highlighting = self.highlight(text, padding=padding)
         if authors is None:
             authors = self.authors
+        fig, ax = plt.subplots(1)
         for i in range(len(self.authors)):
-            plt.plot(highlighting[:,i], label=self.authors[i]);
-            plt.legend()
+            ax.plot(highlighting[:,i], label=self.authors[i]);
+            ax.legend()
+        ax.set_xlabel('character index')
+        ax.set_ylabel('probability')
+        title = 'Highlighting for Text:\n'
+        if len(text) > 60:
+            text = text[:60] + ' ...'
+        ax.set_title(title)
         plt.show()
 
 

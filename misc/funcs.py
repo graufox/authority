@@ -11,7 +11,10 @@ def top_3_acc(y_true, y_pred):
 
 
 def expand_filtering(filtered_data, window_size):
-    """"""
+    """
+    Moving average with approximated endpoints so that each value in
+        filtered_data can be associated with a value of the original data
+    """
     if not type(filtered_data) == np.array:
         filtered_data = np.array(filtered_data)
     n = filtered_data.shape[0]

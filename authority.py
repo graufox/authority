@@ -252,10 +252,12 @@ class Highlighter:
 
 
 
+
     def predict(self, text):
         """Returns the (average) probability of each author having written the text"""
         highlighting = self.highlight(text)
         return highlighting.mean(axis=0)
+
 
 
 
@@ -287,6 +289,7 @@ class Highlighter:
             subtitle = text[:60] + ' ...'
         ax.set_title(title + subtitle)
         plt.show()
+
 
 
 
@@ -369,6 +372,7 @@ class Highlighter:
         except:
             print('Error loading model file from specified path.')
             return -1
+
         if type(filepath_vars) is str:
             try:
                 # load the variables from file

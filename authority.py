@@ -1,7 +1,9 @@
 from keras.models import Model, load_model
-from keras.layers import Dense, Dropout, BatchNormalization
+from keras.layers import Dense, Conv1D, Multiply, GlobalAvgPool1D
+from keras.layers import Dropout, BatchNormalization
 from keras.metrics import top_k_categorical_accuracy
 from keras.utils import to_categorical
+import keras.backend as K
 
 from misc.AttentionWeightedAverage import *
 from misc.funcs import *
@@ -60,6 +62,11 @@ class Highlighter:
             print('Error: must specify number of authors.')
             return
 
+        # debug = 0
+        # def debug_me(count=0):
+        #     print('DEBUG: {}'.format(count))
+        #     return count + 1
+
         # define model
         if type(textgenrnn_weights_path) is str:
             self._tg_rnn = textgenrnn(textgenrnn_weights_path)
@@ -68,15 +75,27 @@ class Highlighter:
             self._tg_rnn = textgenrnn()
         self._tg_model = self._tg_rnn.model
         self._input = self._tg_model.layers[0].input
-        self._tg_out = self._tg_model.layers[-2].output
+        # debug = debug_me(debug)
+        # we'll hard-code the attention layer so TFJS can use it
+        self._tg_out = self._tg_model.layers[-3].output
+        # debug = debug_me(debug)
+        self._att = Conv1D(1, 5, padding='causal', activation='softmax')(self._tg_out)
+        # debug = debug_me(debug)
+        self._att_avg = GlobalAvgPool1D()(Multiply()([self._att, self._tg_out]))
+        # debug = debug_me(debug)
         if batch_normalization is True:
-            self._tg_out = BatchNormalization()(self._tg_out)
+            self._att_avg = BatchNormalization()(self._att_avg)
+        # debug = debug_me(debug)
         if dropout_rate > 0 and dropout_rate < 1:
-            self._tg_out = Dropout(rate=0.5)(self._tg_out)
+            self._att_avg = Dropout(rate=0.5)(self._att_avg)
+        # debug = debug_me(debug)
         self._classification = Dense(units=self.num_authors,
                                      activation='softmax',
-                                     name='classification')(self._tg_out)
+                                     name='classification')(self._att_avg)
+        # debug = debug_me(debug)
         self.model = Model(inputs=self._input, outputs=self._classification)
+        # debug = debug_me(debug)
+
 
         # compile model
         self.model.compile(loss='categorical_crossentropy',

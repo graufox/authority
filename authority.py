@@ -1,7 +1,8 @@
 from keras.models import Model, load_model
 from keras.layers import Dense, Conv1D, Multiply, GlobalAvgPool1D
-from keras.layers import Dropout, BatchNormalization
+from keras.layers import Dropout, BatchNormalization, Reshape
 from keras.metrics import top_k_categorical_accuracy
+from keras.regularizers import l1_l2
 from keras.utils import to_categorical
 import keras.backend as K
 
@@ -31,7 +32,7 @@ class Highlighter:
         of said predictions.
     """
     def __init__(self, maxlen=40, sample_stride=3):
-        # DEBUG: changing maxlen and sample_stride will break model
+        # DEBUG: changing maxlen and sample_stride may break model
         self.authors = []
         self.authors_dict = {}
         self.num_authors = 0
@@ -75,26 +76,19 @@ class Highlighter:
             self._tg_rnn = textgenrnn()
         self._tg_model = self._tg_rnn.model
         self._input = self._tg_model.layers[0].input
-        # debug = debug_me(debug)
         # we'll hard-code the attention layer so TFJS can use it
         self._tg_out = self._tg_model.layers[-3].output
-        # debug = debug_me(debug)
-        self._att = Conv1D(1, 5, padding='causal', activation='softmax')(self._tg_out)
-        # debug = debug_me(debug)
+        self._att = Conv1D(1, 1, activation='softmax', kernel_regularizer=l1_l2(0.01))(self._tg_out)
+        self._att = Reshape((self.maxlen, 1))(self._att) # FIXME is this needed?
         self._att_avg = GlobalAvgPool1D()(Multiply()([self._att, self._tg_out]))
-        # debug = debug_me(debug)
         if batch_normalization is True:
             self._att_avg = BatchNormalization()(self._att_avg)
-        # debug = debug_me(debug)
         if dropout_rate > 0 and dropout_rate < 1:
             self._att_avg = Dropout(rate=0.5)(self._att_avg)
-        # debug = debug_me(debug)
         self._classification = Dense(units=self.num_authors,
                                      activation='softmax',
                                      name='classification')(self._att_avg)
-        # debug = debug_me(debug)
         self.model = Model(inputs=self._input, outputs=self._classification)
-        # debug = debug_me(debug)
 
 
         # compile model
